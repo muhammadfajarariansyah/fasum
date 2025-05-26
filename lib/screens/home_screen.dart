@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fasum/l10n/app_localizations.dart';
 import 'package:fasum/screens/add_post_screen.dart';
 import 'package:fasum/screens/detail_screen.dart';
+import 'package:fasum/screens/settings_screen.dart';
 import 'package:fasum/screens/sign_in_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -80,28 +82,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 ListTile(
                   leading: const Icon(Icons.clear),
                   title: const Text('Semua Kategori'),
-                  onTap:
-                      () => Navigator.pop(
-                        context,
-                        null,
-                      ), // Null untuk memilih semua kategori
+                  onTap: () => Navigator.pop(
+                    context,
+                    null,
+                  ), // Null untuk memilih semua kategori
                 ),
                 const Divider(),
                 ...categories.map(
                   (category) => ListTile(
                     title: Text(category),
-                    trailing:
-                        selectedCategory == category
-                            ? Icon(
-                              Icons.check,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                            : null,
-                    onTap:
-                        () => Navigator.pop(
-                          context,
-                          category,
-                        ), // Kategori yang dipilih
+                    trailing: selectedCategory == category
+                        ? Icon(
+                            Icons.check,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : null,
+                    onTap: () => Navigator.pop(
+                      context,
+                      category,
+                    ), // Kategori yang dipilih
                   ),
                 ),
               ],
@@ -113,14 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result != null) {
       setState(() {
-        selectedCategory =
-            result; // Set kategori yang dipilih atau null untuk Semua Kategori
+        selectedCategory = result; // Set kategori yang dipilih atau null untuk Semua Kategori
       });
     } else {
       // Jika result adalah null, berarti memilih Semua Kategori
       setState(() {
-        selectedCategory =
-            null; // Reset ke null untuk menampilkan semua kategori
+        selectedCategory = null; // Reset ke null untuk menampilkan semua kategori
       });
     }
   }
@@ -141,7 +138,19 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             onPressed: _showCategoryFilter,
             icon: const Icon(Icons.filter_list),
-            tooltip: 'Filter Kategori',
+            tooltip: AppLocalizations.of(context).filterCategory,
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.settings),
+            tooltip: AppLocalizations.of(context).settings,
           ),
           IconButton(
             onPressed: () {
@@ -156,22 +165,19 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {});
         },
         child: StreamBuilder(
-          stream:
-              FirebaseFirestore.instance
-                  .collection('posts')
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('posts')
+              .orderBy('createdAt', descending: true)
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
-            final posts =
-                snapshot.data!.docs.where((doc) {
-                  final data = doc.data();
-                  final category = data['category'] ?? 'Lainnya';
-                  return selectedCategory == null ||
-                      selectedCategory == category;
-                }).toList();
+            final posts = snapshot.data!.docs.where((doc) {
+              final data = doc.data();
+              final category = data['category'] ?? 'Lainnya';
+              return selectedCategory == null || selectedCategory == category;
+            }).toList();
 
             if (posts.isEmpty) {
               return const Center(
@@ -192,26 +198,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 final longitude = data['longitude'];
                 final category = data['category'] ?? 'Lainnya';
                 final createdAt = DateTime.parse(createdAtStr);
-                
-                String heroTag =
-                    'fasum-image-${createdAt.millisecondsSinceEpoch}';
+
+                String heroTag = 'fasum-image-${createdAt.millisecondsSinceEpoch}';
 
                 return InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => DetailScreen(
-                              imageBase64: imageBase64,
-                              description: description ?? '',
-                              createdAt: createdAt,
-                              fullName: fullName,
-                              latitude: latitude,
-                              longitude: longitude,
-                              category: category,
-                              heroTag: heroTag,
-                            ),
+                        builder: (context) => DetailScreen(
+                          imageBase64: imageBase64,
+                          description: description ?? '',
+                          createdAt: createdAt,
+                          fullName: fullName,
+                          latitude: latitude,
+                          longitude: longitude,
+                          category: category,
+                          heroTag: heroTag,
+                        ),
                       ),
                     );
                   },
